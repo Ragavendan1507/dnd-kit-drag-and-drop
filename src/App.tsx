@@ -190,8 +190,8 @@ const App: React.FC = () => {
           onConnect={onConnect}
           onNodeClick={onNodeClick}
           proOptions={{ hideAttribution: true }}
-          panOnDrag={false}
-          zoomOnScroll={false}
+          // panOnDrag={false}
+          // zoomOnScroll={false}
           fitView
         >
           <Controls />

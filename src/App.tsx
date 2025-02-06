@@ -192,7 +192,7 @@ const App: React.FC = () => {
           proOptions={{ hideAttribution: true }}
           // panOnDrag={false}
           // zoomOnScroll={false}
-          fitView
+          // fitView
         >
           <Controls />
         </ReactFlow>

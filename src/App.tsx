@@ -1,15 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import ReactFlow, {
   Controls,
-  Background,
+  // Background,
   useNodesState,
   useEdgesState,
   addEdge,
   Node,
   Edge,
+  BackgroundVariant,
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
+import Background from './Background';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -172,7 +174,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
       <Sidebar
         isGrandParentAdded={isGrandParentAdded}
         selectedParentId={selectedParentId}
@@ -190,10 +192,16 @@ const App: React.FC = () => {
           onConnect={onConnect}
           onNodeClick={onNodeClick}
           proOptions={{ hideAttribution: true }}
-          // panOnDrag={false}
-          // zoomOnScroll={false}
-          // fitView
+          panOnDrag={false}
+          zoomOnScroll={false}
+          fitView
         >
+          <Background
+          // id="1"
+          // gap={10}
+          // color="#f1f1f1"
+          // variant={BackgroundVariant.Lines}
+          />
           <Controls />
         </ReactFlow>
       </div>

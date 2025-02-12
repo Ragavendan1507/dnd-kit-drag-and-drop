@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import ReactFlow, {
   Controls,
-  // Background,
+  Background,
   useNodesState,
   useEdgesState,
   addEdge,
@@ -11,7 +11,7 @@ import ReactFlow, {
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
-import Background from './Background';
+// import Background from './Background';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];

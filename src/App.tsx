@@ -192,9 +192,9 @@ const App: React.FC = () => {
           onConnect={onConnect}
           onNodeClick={onNodeClick}
           proOptions={{ hideAttribution: true }}
-          panOnDrag={false}
-          zoomOnScroll={false}
-          fitView
+          // panOnDrag={false}
+          // zoomOnScroll={false}
+          // fitView
         >
           <Background
           // id="1"

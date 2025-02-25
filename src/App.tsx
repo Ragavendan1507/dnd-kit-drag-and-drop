@@ -11,17 +11,16 @@ import ReactFlow, {
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
-// import Background from './Background';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
 
 const Sidebar: React.FC<{
-  isGrandParentAdded: boolean;
-  selectedParentId: string | null;
-}> = ({ isGrandParentAdded, selectedParentId }) => {
+  isModuleAdded: boolean;
+  selectedAspectId: string | null;
+}> = ({ isModuleAdded, selectedAspectId }) => {
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    if (nodeType === 'GrandParent' && isGrandParentAdded) return;
+    if (nodeType === 'Module' && isModuleAdded) return;
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
   };
@@ -33,39 +32,37 @@ const Sidebar: React.FC<{
       <div
         style={{
           ...styles.draggable,
-          opacity: isGrandParentAdded ? 0.5 : 1,
-          pointerEvents: isGrandParentAdded ? 'none' : 'auto',
+          opacity: isModuleAdded ? 0.5 : 1,
+          pointerEvents: isModuleAdded ? 'none' : 'auto',
         }}
-        draggable={!isGrandParentAdded}
-        onDragStart={(e) =>
-          !isGrandParentAdded && onDragStart(e, 'GrandParent')
-        }
+        draggable={!isModuleAdded}
+        onDragStart={(e) => !isModuleAdded && onDragStart(e, 'Module')}
       >
-        GrandParent Node
+        Module Node
       </div>
 
       <div
         style={{
           ...styles.draggable,
-          opacity: isGrandParentAdded ? 1 : 0.5,
-          pointerEvents: isGrandParentAdded ? 'auto' : 'none',
+          opacity: isModuleAdded ? 1 : 0.5,
+          pointerEvents: isModuleAdded ? 'auto' : 'none',
         }}
-        draggable={isGrandParentAdded}
-        onDragStart={(e) => isGrandParentAdded && onDragStart(e, 'Parent')}
+        draggable={isModuleAdded}
+        onDragStart={(e) => isModuleAdded && onDragStart(e, 'Aspect')}
       >
-        Parent Node
+        Aspect Node
       </div>
 
       <div
         style={{
           ...styles.draggable,
-          opacity: selectedParentId ? 1 : 0.5,
-          pointerEvents: selectedParentId ? 'auto' : 'none',
+          opacity: selectedAspectId ? 1 : 0.5,
+          pointerEvents: selectedAspectId ? 'auto' : 'none',
         }}
-        draggable={!!selectedParentId}
-        onDragStart={(e) => selectedParentId && onDragStart(e, 'Child')}
+        draggable={!!selectedAspectId}
+        onDragStart={(e) => selectedAspectId && onDragStart(e, 'Workflow')}
       >
-        Child Node
+        Workflow Node
       </div>
     </div>
   );
@@ -74,18 +71,18 @@ const Sidebar: React.FC<{
 const App: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>(initialEdges);
-  const [isGrandParentAdded, setIsGrandParentAdded] = useState<boolean>(false);
-  const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
+  const [isModuleAdded, setIsModuleAdded] = useState<boolean>(false);
+  const [selectedAspectId, setSelectedAspectId] = useState<string | null>(null);
 
   const onConnect = useCallback(
     (params: any) =>
-      setEdges((eds) => addEdge({ ...params, type: 'step' }, eds)),
+      setEdges((eds) => addEdge({ ...params, type: 'smoothstep' }, eds)),
     [setEdges],
   );
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    if (node.type === 'Parent') {
-      setSelectedParentId(node.id);
+    if (node.type === 'Aspect') {
+      setSelectedAspectId(node.id);
     }
   }, []);
 
@@ -94,90 +91,119 @@ const App: React.FC = () => {
     const nodeType = event.dataTransfer.getData('application/reactflow');
     if (!nodeType) return;
 
-    if (nodeType === 'GrandParent' && isGrandParentAdded) return;
-    if (nodeType === 'Child' && !selectedParentId) return;
+    if (nodeType === 'Module' && isModuleAdded) return;
+    if (nodeType === 'Workflow' && !selectedAspectId) return;
 
     setNodes((nds) => {
       let newPosition = { x: event.clientX - 250, y: event.clientY - 50 };
-      const grandParentNode = nds.find((node) => node.type === 'GrandParent');
-
-      if (nodeType === 'Parent' && grandParentNode) {
-        const parentNodes = nds.filter((node) => node.type === 'Parent');
-        const parentSpacing = 200;
-        newPosition = {
-          x:
-            grandParentNode.position.x +
-            (parentNodes.length + 1) * parentSpacing,
-          y: grandParentNode.position.y + 150,
-        };
-      }
-
-      if (nodeType === 'Child' && selectedParentId) {
-        const parentNode = nds.find((node) => node.id === selectedParentId);
-        if (parentNode) {
-          const childNodes = nds.filter(
-            (node) =>
-              node.type === 'Child' &&
-              edges.some(
-                (edge) =>
-                  edge.source === selectedParentId && edge.target === node.id,
-              ),
-          );
-
-          const childSpacing = 150;
-          newPosition = {
-            x: parentNode.position.x + childNodes.length * childSpacing,
-            y: parentNode.position.y + 150,
-          };
-        }
-      }
-
-      const newNode: Node = {
+      const moduleNode = nds.find((node) => node.type === 'Module');
+      const newNode: any = {
         id: `${nds.length + 1}`,
         type: nodeType,
         position: newPosition,
         data: { label: nodeType },
+        style: { width: 150 },
+        sourcePosition: 'right',
+        targetPosition: 'left',
       };
+      if (nodeType === 'Aspect' && moduleNode) {
+        const aspectNodes = nds.filter((node) => node.type === 'Aspect');
+        const aspectSpacing = 100;
+        const lastAspect = aspectNodes[aspectNodes.length - 1];
+
+        newPosition = {
+          x: moduleNode.position.x + 200,
+          y: lastAspect
+            ? lastAspect.position.y + aspectSpacing
+            : moduleNode.position.y + 100,
+        };
+        setEdges((eds) => [
+          ...eds,
+          {
+            id: `edge-${moduleNode.id}-${newNode.id}`,
+            source: moduleNode.id,
+            target: newNode.id,
+            type: 'smoothstep',
+            sourceHandle: 'right',
+            targetHandle: 'left',
+          },
+        ]);
+      }
+      if (nodeType === 'Workflow' && selectedAspectId) {
+        const aspectNode = nds.find((node) => node.id === selectedAspectId);
+        if (aspectNode) {
+          const workflowNodes = nds.filter(
+            (node) =>
+              node.type === 'Workflow' &&
+              edges.some(
+                (edge) =>
+                  edge.source === selectedAspectId && edge.target === node.id,
+              ),
+          );
+
+          const workflowSpacing = 100;
+          newPosition = {
+            x: aspectNode.position.x + workflowSpacing,
+            y:
+              aspectNode.position.y +
+              (workflowNodes.length + 1) * workflowSpacing,
+          };
+
+          // const workflowSpacing = 100;
+          // const lastWorkflow = workflowNodes[workflowNodes.length - 1];
+
+          // newPosition = {
+          //   x: aspectNode.position.x,
+          //   y: aspectNode.position.y + (workflowNodes.length + 1) * 100,
+          // };f
+          setEdges((eds) => [
+            ...eds,
+            {
+              id: `edge-${selectedAspectId}-${newNode.id}`,
+              source: selectedAspectId,
+              target: newNode.id,
+              type: 'smoothstep',
+              sourceHandle: 'right',
+              targetHandle: 'left',
+            },
+          ]);
+        }
+      }
+
+      // if (nodeType === 'Workflow' && selectedAspectId) {
+      //   const aspectNode = nds.find((node) => node.id === selectedAspectId);
+      //   if (aspectNode) {
+      //     const workflowNodes = nds.filter(
+      //       (node) =>
+      //         node.type === 'Workflow' &&
+      //         edges.some(
+      //           (edge) =>
+      //             edge.source === selectedAspectId && edge.target === node.id,
+      //         ),
+      //     );
+
+      //     const workflowSpacing = 150;
+      //     newPosition = {
+      //       x: aspectNode.position.x + workflowNodes.length * workflowSpacing,
+      //       y: aspectNode.position.y,
+      //     };
+      //   }
+      // }
 
       const updatedNodes = [...nds, newNode];
-
-      if (nodeType === 'Parent' && grandParentNode) {
-        setEdges((eds) => [
-          ...eds,
-          {
-            id: `edge-${grandParentNode.id}-${newNode.id}`,
-            source: grandParentNode.id,
-            target: newNode.id,
-            type: 'step',
-          },
-        ]);
-      }
-
-      if (nodeType === 'Child' && selectedParentId) {
-        setEdges((eds) => [
-          ...eds,
-          {
-            id: `edge-${selectedParentId}-${newNode.id}`,
-            source: selectedParentId,
-            target: newNode.id,
-            type: 'step',
-          },
-        ]);
-      }
-
       return updatedNodes;
     });
 
-    if (nodeType === 'GrandParent') {
-      setIsGrandParentAdded(true);
+    if (nodeType === 'Module') {
+      setIsModuleAdded(true);
     }
   };
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
       <Sidebar
-        isGrandParentAdded={isGrandParentAdded}
-        selectedParentId={selectedParentId}
+        isModuleAdded={isModuleAdded}
+        selectedAspectId={selectedAspectId}
       />
       <div
         style={styles.flowContainer}
@@ -191,17 +217,14 @@ const App: React.FC = () => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={onNodeClick}
-          proOptions={{ hideAttribution: true }}
+          nodesDraggable={false}
           // panOnDrag={false}
           // zoomOnScroll={false}
-          // fitView
+          proOptions={{ hideAttribution: true }}
+          zoomOnDoubleClick={false}
+          fitView
         >
-          <Background
-          // id="1"
-          // gap={10}
-          // color="#f1f1f1"
-          // variant={BackgroundVariant.Lines}
-          />
+          <Background />
           <Controls />
         </ReactFlow>
       </div>
@@ -225,7 +248,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   flowContainer: {
     flexGrow: 1,
-    height: '100vh',
+    height: '500px',
+    width: '500px',
   },
 };
 

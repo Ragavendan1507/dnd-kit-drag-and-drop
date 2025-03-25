@@ -2,18 +2,29 @@ pipeline {
     agent any
 
     environment {
-        NODE_OPTIONS = "--max-old-space-size=4096"
+        NODE_VERSION = '20.11.10'
+        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN')  // Ensure this is added in Jenkins credentials
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'pre-development', url: 'git@github.com:username/repo.git'
+                git branch: 'main', 
+                    url: 'https://github.com/username/repo.git'  // Use HTTPS URL
+            }
+        }
+
+        stage('Setup Node.js') {
+            steps {
+                sh "nvm install $NODE_VERSION"
+                sh "nvm use $NODE_VERSION"
             }
         }
 
         stage('Install Dependencies') {
             steps {
+                sh 'rm -rf node_modules package-lock.json build'
+                sh 'npm cache clean --force'
                 sh 'npm install'
             }
         }
@@ -24,22 +35,19 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Firebase') {
             steps {
-                sh '''
-                rm -rf /var/www/html/*
-                cp -r build/* /var/www/html/
-                '''
+                sh 'npx firebase deploy --token $FIREBASE_TOKEN'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Deployment Successful!"
+            echo '✅ Deployment Successful!'
         }
         failure {
-            echo "❌ Deployment Failed. Check the logs."
+            echo '❌ Deployment Failed. Check the logs.'
         }
     }
 }

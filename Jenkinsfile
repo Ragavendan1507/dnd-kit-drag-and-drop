@@ -16,7 +16,7 @@ pipeline {
 
         stage('Setup Node.js') {
             steps {
-                sh ". ~/.nvm/nvm.sh && nvm install $NODE_VERSION && nvm use $NODE_VERSION"
+                sh "export NVM_DIR=~/.nvm && . ~/.nvm/nvm.sh && nvm install $NODE_VERSION && nvm use $NODE_VERSION"
             }
         }
 

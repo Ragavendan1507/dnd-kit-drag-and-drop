@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_VERSION = '20.11.10'
-        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN')  // <- Closing brace added here
+        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN')
     }
 
     stages {
@@ -16,8 +16,7 @@ pipeline {
 
         stage('Setup Node.js') {
             steps {
-                sh "nvm install $NODE_VERSION"
-                sh "nvm use $NODE_VERSION"
+                sh ". ~/.nvm/nvm.sh && nvm install $NODE_VERSION && nvm use $NODE_VERSION"
             }
         }
 

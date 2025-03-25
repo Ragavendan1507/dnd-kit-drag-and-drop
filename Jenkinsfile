@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         NODE_VERSION = '20.11.10'
-        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN') 
+        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN')  // <- Closing brace added here
+    }
 
     stages {
         stage('Checkout Code') {

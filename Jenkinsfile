@@ -3,14 +3,13 @@ pipeline {
 
     environment {
         NODE_VERSION = '20.11.10'
-        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN')  // Ensure this is added in Jenkins credentials
-    }
+        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN') 
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', 
-                    url: 'https://github.com/username/repo.git'  // Use HTTPS URL
+                git branch: 'pre-development', 
+                    url: 'https://github.com/Ragavendan1507/dnd-kit-drag-and-drop.git' 
             }
         }
 

@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'git@github.com:username/repo.git'
+                git branch: 'pre-development', url: 'git@github.com:username/repo.git'
             }
         }
 
